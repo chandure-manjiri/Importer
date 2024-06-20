@@ -1,5 +1,6 @@
 package com.importer.importer.jwtconfig;
 
+import com.importer.importer.service.SecretsManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,9 @@ public class SecurityConfig {
 
   @Value("${jwt.secret}")
   private String secret;
+
+//  @Value("${intern_jwt_secret}")
+//  private String jwtSecret;
   
   @Autowired
   private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -32,14 +36,18 @@ public class SecurityConfig {
   @Autowired
   private JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
+  @Autowired
+  private SecretsManagerService secretsManagerService;
+
   private static final String[] AUTH_WHITE_LIST = {
           "/v3/api-docs/**",
           "/swagger-ui/**"
   };
   @Bean
   public JwtDecoder jwtDecoder() {
-
-    byte[] decodedKey = secret.getBytes();
+//    System.out.println(jwtSecret + "---------------------------------------------------------");
+    String svalue = secretsManagerService.getSecret("intern_manjiri_jwt_secret");
+    byte[] decodedKey = svalue.getBytes();
     SecretKey secretKey = new SecretKeySpec(decodedKey, "HMacSHA512");
 //    SecretKey key = new SecretKeySpec(keyBytes, 0, keyBytes.length, "HmacSHA512")
     return NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
